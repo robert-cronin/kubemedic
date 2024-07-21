@@ -2,7 +2,7 @@ Note: This project is still under development and is not yet ready for use.
 
 # KubeMedic
 
-KubeMedic is a diagnostic tool designed to aid Kubernetes developers in identifying and resolving cluster issues. Leveraging the capabilities of OpenAI's API, KubeMedic provides intelligent troubleshooting and best practice recommendations through a simple web interface.
+KubeMedic is a smart diagnostic tool designed to aid Kubernetes developers in identifying and resolving cluster issues. Leveraging the capabilities of OpenAI's GPT4o mini, KubeMedic provides intelligent troubleshooting and best practice recommendations through a simple web interface.
 
 ## Why KubeMedic?
 You might be wondering why not just gather the logs yourself and feed them into ChatGPT? The answer is that KubeMedic is designed to do the gathering and analysis for you, so you can iterate a solution faster. Plus KubeMedic is directly embedded in your Kubernetes cluster, so you can do away with the hassle of copying logs and other data around and just focus on the problem at hand.

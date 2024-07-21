@@ -1,0 +1,60 @@
+<!--
+ Copyright (c) 2024 Robert Cronin
+ 
+ This software is released under the MIT License.
+ https://opensource.org/licenses/MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KubeMedic: Smart K8s Diagnosis Tool</title>
+  </head>
+  <body>
+    <h1>KubeMedic: Smart K8s Diagnosis Tool</h1>
+    <form id="diagnoseForm">
+      <label for="api_key">OpenAI API Key:</label><br />
+      <input type="text" id="api_key" name="api_key" /><br />
+      <label for="issue">Describe the issue you're facing:</label><br />
+      <textarea id="issue" name="issue"></textarea><br />
+      <label for="upload">Upload any relevant files:</label>
+      <input type="file" id="upload" name="upload" /><br /><br />
+      <div id="result"></div>
+      <input type="submit" value="Diagnose" />
+    </form>
+
+    <script>
+      document
+        .getElementById("diagnoseForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const form = event.target;
+          const formData = new FormData(form);
+
+          const jsonPayload = {
+            api_key: formData.get("api_key"),
+            issue: formData.get("issue"),
+          };
+
+          if (formData.get("upload").name) {
+            const file = formData.get("upload");
+            jsonPayload.upload = await file.text();
+          }
+
+          const response = await fetch("/diagnose", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(jsonPayload),
+          });
+
+          const result = await response.json();
+          document.getElementById("result").innerText = JSON.stringify(result);
+        });
+    </script>
+  </body>
+</html>
