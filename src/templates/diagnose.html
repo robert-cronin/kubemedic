@@ -11,50 +11,330 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KubeMedic: Smart K8s Diagnosis Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+    <style>
+      body,
+      html {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      h1 {
+        color: #2c3e50;
+        margin: 20px;
+        text-align: center;
+      }
+      #main-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 80px);
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      #apiKeySection {
+        margin-bottom: 20px;
+        padding: 0 20px;
+      }
+      #chat-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      #chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      .message {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        max-width: 80%;
+      }
+      .user-message {
+        background-color: #3498db;
+        color: white;
+        align-self: flex-end;
+        margin-left: auto;
+      }
+      .bot-message {
+        background-color: #ecf0f1;
+        color: #2c3e50;
+      }
+      #user-input {
+        display: flex;
+        padding: 10px;
+        background-color: #fff;
+        border-top: 1px solid #ddd;
+      }
+      #user-input input {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      #user-input button {
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      #user-input button:hover {
+        background-color: #2980b9;
+      }
+      .function-call {
+        background-color: #f0f8ff;
+        border: 1px solid #add8e6;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+      .function-call-header {
+        background-color: #add8e6;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+      .function-call-content {
+        display: none;
+        padding: 10px;
+        font-family: monospace;
+      }
+      .function-call-content pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(0, 0, 0, 0.3);
+        border-radius: 50%;
+        border-top-color: #3498db;
+        animation: spin 1s ease-in-out infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body>
     <h1>KubeMedic: Smart K8s Diagnosis Tool</h1>
-    <form id="diagnoseForm">
-      <label for="api_key">OpenAI API Key:</label><br />
-      <input type="text" id="api_key" name="api_key" /><br />
-      <label for="issue">Describe the issue you're facing:</label><br />
-      <textarea id="issue" name="issue"></textarea><br />
-      <label for="upload">Upload any relevant files:</label>
-      <input type="file" id="upload" name="upload" /><br /><br />
-      <div id="result"></div>
-      <input type="submit" value="Diagnose" />
-    </form>
+
+    <div id="main-container">
+      <div id="apiKeySection">
+        <p id="apiKeyStatus">Checking API key status...</p>
+        <div id="setApiKeyForm" style="display: none">
+          <input
+            type="text"
+            id="apiKeyInput"
+            placeholder="Enter your OpenAI API Key"
+          />
+          <button onclick="setApiKey()">Set API Key</button>
+        </div>
+      </div>
+
+      <div id="chat-container">
+        <div id="chat-messages"></div>
+        <div id="user-input">
+          <input
+            type="text"
+            id="user-message"
+            placeholder="Describe the issue you're facing..."
+          />
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
 
     <script>
-      document
-        .getElementById("diagnoseForm")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault();
+      let conversationHistory = [];
+      let isWaitingForResponse = false;
 
-          const form = event.target;
-          const formData = new FormData(form);
+      function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message");
+        messageDiv.classList.add(isUser ? "user-message" : "bot-message");
+        messageDiv.innerHTML = isUser ? content : marked.parse(content);
+        document.getElementById("chat-messages").appendChild(messageDiv);
+        document.getElementById("chat-messages").scrollTop =
+          document.getElementById("chat-messages").scrollHeight;
 
-          const jsonPayload = {
-            api_key: formData.get("api_key"),
-            issue: formData.get("issue"),
-          };
+        // Add message to conversation history
+        conversationHistory.push({
+          role: isUser ? "user" : "assistant",
+          content: content,
+        });
+      }
 
-          if (formData.get("upload").name) {
-            const file = formData.get("upload");
-            jsonPayload.upload = await file.text();
-          }
+      function addFunctionCall(functionCall) {
+        const functionDiv = document.createElement("div");
+        functionDiv.classList.add("function-call");
 
+        const headerDiv = document.createElement("div");
+        headerDiv.classList.add("function-call-header");
+        headerDiv.textContent = `Function: ${functionCall.name}`;
+        headerDiv.onclick = () => {
+          const content = headerDiv.nextElementSibling;
+          content.style.display =
+            content.style.display === "none" ? "block" : "none";
+        };
+
+        const contentDiv = document.createElement("div");
+        contentDiv.classList.add("function-call-content");
+        contentDiv.innerHTML = `
+                <strong>Arguments:</strong><br>
+                <pre>${JSON.stringify(functionCall.args, null, 2)}</pre>
+                <strong>Result:</strong><br>
+                <pre>${functionCall.result}</pre>
+            `;
+
+        functionDiv.appendChild(headerDiv);
+        functionDiv.appendChild(contentDiv);
+        document.getElementById("chat-messages").appendChild(functionDiv);
+        document.getElementById("chat-messages").scrollTop =
+          document.getElementById("chat-messages").scrollHeight;
+      }
+
+      function addLoadingMessage() {
+        const loadingDiv = document.createElement("div");
+        loadingDiv.classList.add("message", "bot-message");
+        loadingDiv.innerHTML = '<div class="loading"></div> Analyzing...';
+        loadingDiv.id = "loading-message";
+        document.getElementById("chat-messages").appendChild(loadingDiv);
+        document.getElementById("chat-messages").scrollTop =
+          document.getElementById("chat-messages").scrollHeight;
+      }
+
+      function removeLoadingMessage() {
+        const loadingMessage = document.getElementById("loading-message");
+        if (loadingMessage) {
+          loadingMessage.remove();
+        }
+      }
+
+      async function sendMessage() {
+        const userInput = document.getElementById("user-message");
+        const userMessage = userInput.value.trim();
+        if (userMessage && !isWaitingForResponse) {
+          addMessage(userMessage, true);
+          userInput.value = "";
+          isWaitingForResponse = true;
+          addLoadingMessage();
+          await diagnose(userMessage);
+          isWaitingForResponse = false;
+        }
+      }
+
+      async function diagnose(issue) {
+        try {
           const response = await fetch("/diagnose", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(jsonPayload),
+            body: JSON.stringify({
+              issue: issue,
+              conversation_history: conversationHistory,
+            }),
           });
 
-          const result = await response.json();
-          document.getElementById("result").innerText = JSON.stringify(result);
+          const data = await response.json();
+
+          removeLoadingMessage();
+
+          if (response.ok) {
+            // Check if the response contains an error message
+            if (data.error) {
+              addMessage(`Error: ${data.error}`);
+            } else {
+              // Display function calls
+              if (data.function_calls && data.function_calls.length > 0) {
+                for (const functionCall of data.function_calls) {
+                  addFunctionCall(functionCall);
+                }
+              }
+              // Display the diagnosis
+              if (Array.isArray(data.diagnosis) && data.diagnosis.length > 0) {
+                addMessage(data.diagnosis[0]);
+              } else if (typeof data.diagnosis === "string") {
+                addMessage(data.diagnosis);
+              } else {
+                addMessage("Received an unexpected response format.");
+              }
+            }
+          } else {
+            addMessage(`Error: ${data.error || "An unknown error occurred"}`);
+          }
+        } catch (error) {
+          removeLoadingMessage();
+          addMessage(`An unexpected error occurred: ${error.message}`);
+          console.error("Error:", error);
+        }
+      }
+
+      function checkApiKey() {
+        fetch("/api/check_api_key")
+          .then((response) => response.json())
+          .then((data) => {
+            const statusElement = document.getElementById("apiKeyStatus");
+            const formElement = document.getElementById("setApiKeyForm");
+            if (data.has_api_key) {
+              statusElement.textContent = "API key is set.";
+              formElement.style.display = "none";
+              addMessage(
+                "Hello! I'm KubeMedic, your Kubernetes diagnosis assistant. How can I help you today?"
+              );
+            } else {
+              statusElement.textContent = "API key is not set.";
+              formElement.style.display = "block";
+            }
+          })
+          .catch((error) => console.error("Error checking API key:", error));
+      }
+
+      function setApiKey() {
+        const apiKey = document.getElementById("apiKeyInput").value;
+        fetch("/api/set_api_key", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ api_key: apiKey }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            alert(data.message);
+            checkApiKey();
+          })
+          .catch((error) => console.error("Error setting API key:", error));
+      }
+
+      document
+        .getElementById("user-message")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            sendMessage();
+          }
         });
+
+      // Check API key status on page load
+      checkApiKey();
     </script>
   </body>
 </html>

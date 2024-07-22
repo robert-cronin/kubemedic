@@ -2,3 +2,4 @@ openai
 kubernetes
 flask
 click
+python-dotenv
