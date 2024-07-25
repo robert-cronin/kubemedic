@@ -26,6 +26,11 @@ class ConversationManager:
             message["name"] = name
         self.messages.append(message)
 
+    def truncate_result(self, result: str, max_length: int = 2000) -> str:
+        if len(result) > max_length:
+            return result[:max_length] + "... (truncated)"
+        return result
+
     def get_response(self, model: str = "gpt-4o-mini", max_iterations: int = 5) -> Tuple[str, List[Dict[str, str]]]:
         self.function_calls = []
         for _ in range(max_iterations):
@@ -56,29 +61,38 @@ class ConversationManager:
                             # Call the appropriate function
                             if function_name == "fetch_events":
                                 result = self.k8s_client.fetch_events(
-                                    function_args.get("namespace", "default"))
+                                    function_args.get("namespace", "default"),
+                                    # Add a default limit
+                                    function_args.get("limit", 100)
+                                )
                             elif function_name == "fetch_pod_logs":
                                 result = self.k8s_client.fetch_pod_logs(
                                     function_args.get("namespace", "default"),
                                     function_args.get("pod_name"),
-                                    function_args.get("container_name")
+                                    function_args.get("container_name"),
+                                    # Add a default limit
+                                    function_args.get("limit", 1000)
                                 )
                             elif function_name == "execute_kubectl_command":
                                 result = self.k8s_client.execute_kubectl_command(
-                                    function_args.get("command", []))
+                                    function_args.get("command", [])
+                                )
                             else:
                                 result = f"Error: Unknown function {
                                     function_name}"
 
-                        # Add the function call and result to the messages and function_calls list
+                        # Truncate the result
+                        truncated_result = self.truncate_result(result)
+
+                        # Add the function call and truncated result to the messages and function_calls list
                         self.add_message("function", f"Function {function_name} was called with args: {
                                          function_args}", name=function_name)
                         self.add_message("function", f"Result: {
-                                         result}", name=function_name)
+                                         truncated_result}", name=function_name)
                         self.function_calls.append({
                             "name": function_name,
                             "args": function_args,
-                            "result": result
+                            "result": truncated_result
                         })
 
                     # Continue the conversation
