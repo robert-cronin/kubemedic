@@ -4,6 +4,7 @@
 # https://opensource.org/licenses/MIT
 
 import os
+
 from dotenv import load_dotenv
 
 

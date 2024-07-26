@@ -1,5 +1,7 @@
-openai
-kubernetes
-flask
-click
-python-dotenv
+openai==1.36.1
+kubernetes==30.1.0
+Flask==3.0.3
+click==8.1.7
+python-dotenv==1.0.1
+pylint==3.2.6
+autopep8==2.3.1

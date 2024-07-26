@@ -3,12 +3,14 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
+import logging
 import os
 import sys
-import logging
-from flask import Flask, request, jsonify, render_template, session
-from .conversation_manager import ConversationManager
+
+from flask import Flask, jsonify, render_template, request, session
+
 from .config_manager import config
+from .conversation_manager import ConversationManager
 from .kubernetes import KubernetesClient
 
 # Configure logging

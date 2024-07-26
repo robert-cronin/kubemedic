@@ -3,10 +3,12 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-import openai
-import logging
 import json
-from typing import List, Dict, Tuple
+import logging
+from typing import Dict, List, Tuple
+
+import openai
+
 from .kubernetes import KubernetesClient
 from .tool_specs import tool_specs
 
