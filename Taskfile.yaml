@@ -1,0 +1,49 @@
+# Copyright 2024 Robert Cronin
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "3"
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+
+  patch:
+    desc: "Increment the patch version"
+    cmds:
+      - ./scripts/increment-patch.sh
+
+  minor:
+    desc: "Increment the minor version"
+    cmds:
+      - ./scripts/increment-minor.sh
+
+  major:
+    desc: "Increment the major version"
+    cmds:
+      - ./scripts/increment-major.sh
+
+  list-tags:
+    desc: "List all tags"
+    cmds:
+      - git tag --list
+
+  delete-tag:
+    desc: "Delete a tag"
+    vars:
+      TAG:
+    cmds:
+      - git tag -d $TAG
+      - git push --delete origin $TAG
