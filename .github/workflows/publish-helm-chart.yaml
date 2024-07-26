@@ -37,18 +37,34 @@ jobs:
         run: |
           helm package chart/
 
-      - name: Update Index
+      - name: Upload Helm chart artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: helm-chart
+          path: kubemedic-*.tgz
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+          clean: true
+
+      - name: Download Helm chart artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: helm-chart
+
+      - name: Update Helm repository index
         run: |
-          git fetch origin gh-pages
-          git checkout gh-pages
           if [ ! -f index.yaml ]; then
             helm repo index . --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           else
             helm repo index --merge index.yaml . --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           fi
           git add index.yaml *.tgz
-          git commit -m "Update Helm chart"
-          git push
+          git commit -m "Update Helm chart repository" || echo "No changes to commit"
+          git push origin gh-pages
 
       - name: Debug
         run: |
