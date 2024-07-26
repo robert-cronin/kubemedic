@@ -37,7 +37,11 @@ helm repo add kubemedic https://robert-cronin.github.io/kubemedic
 helm repo update
 
 # Install KubeMedic
-helm install kubemedic kubemedic/kubemedic
+helm upgrade --install kubemedic kubemedic/kubemedic \
+    --namespace kubemedic \
+    --set openai.apiKey=<OPENAI_API_KEY> \
+    --create-namespace \
+    --wait
 ```
 
 ## Installation
