@@ -1,132 +1,84 @@
 # KubeMedic
 
-KubeMedic is a smart diagnostic tool designed to aid Kubernetes developers in identifying and resolving cluster issues. Leveraging the capabilities of OpenAI's GPT4o mini, KubeMedic provides intelligent troubleshooting and best practice recommendations through a simple web interface.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/robert-cronin/kubemedic.svg)](https://github.com/robert-cronin/kubemedic/releases/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/ghcr.io/robert-cronin/kubemedic.svg)](https://github.com/robert-cronin/kubemedic/pkgs/container/kubemedic)
 
-## Why KubeMedic?
+> **Note**: KubeMedic is currently under active development and not yet ready for production use.
 
-First up, this tool might not significantly augment a seasoned Kubernetes developer's troubleshooting skills. However, for those new to Kubernetes or those who want to quickly diagnose and resolve issues without diving deep into logs and events, KubeMedic can be a valuable assistant.
+KubeMedic is an intelligent diagnostic tool for Kubernetes, leveraging OpenAI's GPT models to provide advanced troubleshooting and best practice recommendations. It offers a streamlined approach to cluster issue identification and resolution through an intuitive web interface.
 
-You might be wondering why not just gather the logs yourself and feed them into ChatGPT? The answer is that KubeMedic is designed to do the gathering and analysis for you, so you can iterate a solution faster. Plus KubeMedic is directly embedded in your Kubernetes cluster, so you can do away with the hassle of copying logs and other data around and just focus on the problem at hand.
+## Table of Contents
 
-## Key Features
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Architecture](#architecture)
+- [Contributing](#contributing)
+- [License](#license)
 
-<dl>
-    <dt>Multi-Step Reasoning ✅</dt>
-    <dd>Utilizes OpenAI's API for advanced diagnostics, offering detailed insights and solutions.</dd>
-    <dt>Kubernetes Integration ✅</dt>
-    <dd>Interacts with your Kubernetes cluster to fetch logs, events, and other necessary information in multi-step reasoning chains.</dd>
-    <dt>Dockerized Application ✅</dt>
-    <dd>Encapsulated in a Docker container for ease of deployment and portability.</dd>
-    <dt>Helm Deployment ✅</dt>
-    <dd>Packaged as a Helm chart, so you can install KubeMedic with a single command.</dd>
-    <dt>Service Account Management ✅</dt>
-    <dd>Automatically configures a Kubernetes service account with the necessary read access permissions.</dd>
-    <dt>User-Friendly Web Portal ✅</dt>
-    <dd>Provides an intuitive web interface for inputting issues, uploading files, and interacting with the diagnostic tool in a chat window.</dd>
-    <dt>Flexible Access Control ✅</dt>
-    <dd>Allows customization of read access permissions, supporting namespace restrictions and more.</dd>
-</dl>
+## Features
+
+- **AI-Powered Diagnostics**: Utilizes OpenAI's API for in-depth analysis and solution generation.
+- **Deep Kubernetes Integration**: Fetches logs, events, and cluster information for comprehensive diagnostics.
+- **Multi-Step Reasoning**: Implements sophisticated reasoning chains for thorough problem-solving.
+- **User-Friendly Interface**: Offers an intuitive web portal for easy interaction and issue reporting.
+- **Flexible Deployment**: Available as a Helm chart for seamless integration into existing clusters.
+- **Secure by Design**: Implements least-privilege access with customizable RBAC settings.
+
+## Quick Start
+
+```bash
+# Add KubeMedic Helm repository
+helm repo add kubemedic https://robert-cronin.github.io/kubemedic
+
+# Update Helm repository cache
+helm repo update
+
+# Install KubeMedic
+helm install kubemedic kubemedic/kubemedic
+```
 
 ## Installation
 
 ### Prerequisites
 
-- Kubernetes cluster
+- Kubernetes cluster (v1.19+)
 - Helm 3.0+
-- kubectl configured to communicate with your cluster
+- `kubectl` configured to communicate with your cluster
 
-### Installing Helm
+For detailed installation instructions, including setting up prerequisites, see our [Installation Guide](docs/installation.md).
 
-If you don't have Helm installed, you can follow these steps:
+## Usage
 
-1. Download the Helm binary:
+KubeMedic provides a web interface for interacting with the diagnostic tool. After installation, you can access it by port-forwarding the service:
 
-   ```
-   curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-   ```
+```bash
+kubectl port-forward service/kubemedic 8080:80
+```
 
-2. Verify the installation:
-   ```
-   helm version
-   ```
+Then, navigate to `http://localhost:8080` in your web browser.
 
-### Installing KubeMedic
+For usage examples and common scenarios, refer to our [Usage Guide](docs/usage.md).
 
-1. Add the KubeMedic Helm repository:
+## Overview
 
-   ```
-   helm repo add kubemedic https://robert-cronin.github.io/kubemedic
-   ```
+KubeMedic consists of several key components:
 
-2. Update your Helm repository cache:
+1. **Web Interface**: A Flask-based frontend for user interaction.
+2. **AI Engine**: Integrates with OpenAI's API for advanced analysis.
+3. **Kubernetes Client**: Interfaces with the cluster to gather necessary information.
+4. **Reasoning Engine**: Orchestrates multi-step diagnostic processes.
 
-   ```
-   helm repo update
-   ```
+## Contributing
 
-3. Install KubeMedic:
-   ```
-   helm install kubemedic kubemedic/kubemedic
-   ```
+We welcome contributions from the community! Whether it's bug reports, feature requests, or code contributions, please feel free to engage with us. Check out our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to get started.
 
-## Usage Examples
+## License
 
-Here are some example scenarios you can use to test KubeMedic's diagnostic capabilities:
+KubeMedic is open-source software licensed under the MIT license. See the [LICENSE](LICENSE) file for more details.
 
-1. Pod Crash Loop
+---
 
-   Create a faulty deployment:
-
-   ```
-   kubectl create deployment crash-loop --image=busybox -- /bin/sh -c "sleep 10; exit 1"
-   ```
-
-   KubeMedic prompt:
-   "I have a deployment named 'crash-loop' that keeps restarting. Can you help me diagnose the issue?"
-
-2. Resource Constraints
-
-   Create a resource-constrained pod:
-
-   ```
-   kubectl apply -f - <<EOF
-   apiVersion: v1
-   kind: Pod
-   metadata:
-     name: memory-demo
-   spec:
-     containers:
-     - name: memory-demo-ctr
-       image: polinux/stress
-       resources:
-         limits:
-           memory: "200Mi"
-       command: ["stress"]
-       args: ["--vm", "1", "--vm-bytes", "250M", "--vm-hang", "1"]
-   EOF
-   ```
-
-   KubeMedic prompt:
-   "My pod 'memory-demo' is not starting. Can you investigate why?"
-
-3. Service Discovery Issue
-
-   Create a service without matching pods:
-
-   ```
-   kubectl create service clusterip my-svc --tcp=80:80
-   ```
-
-   KubeMedic prompt:
-   "I created a service 'my-svc' but it's not routing traffic. What could be wrong?"
-
-## Development Roadmap
-
-- [x] Create an input for the API key and have it stored in a secret
-- [x] Add a basic chat interface and upload/text input elements
-- [x] Implement the OpenAI API for basic responses
-- [x] Add a Kubernetes client to fetch logs and events
-- [x] Implement function calling to agentify KubeMedic(e.g. fetch_logs, fetch_events)
-- [x] Implement multi-step reasoning chains (e.g. fetch_logs -> analyze_logs -> fetch_events -> analyze_events -> propose_solution)
-
-For more information on using KubeMedic, please refer to the documentation.
+KubeMedic is a community project maintained by [Robert Cronin](https://github.com/robert-cronin). We are committed to fostering an open and welcoming environment.
