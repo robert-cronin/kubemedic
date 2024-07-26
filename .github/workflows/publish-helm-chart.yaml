@@ -5,23 +5,38 @@
 
 name: Publish Helm chart
 
-# Configures this workflow to run every time a change is pushed to a tag starting with `v`.
 on:
   push:
     tags:
       - "v*" 
     paths:
-      - "chart/**" # Trigger on changes to the chart directory
-  workflow_dispatch: # Allows manual triggering
-  
+      - "chart/**"
+  workflow_dispatch:
+
 jobs:
   publish-helm-chart:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Create gh-pages branch if not exists
+        run: |
+          if ! git ls-remote --exit-code --heads origin gh-pages; then
+            git checkout --orphan gh-pages
+            git rm -rf .
+            git commit --allow-empty -m "Initial gh-pages commit"
+            git push origin gh-pages
+          fi
 
       - name: Helm Install
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4.2.0
         with:
           version: v3.12.1
 
@@ -31,10 +46,9 @@ jobs:
 
       - name: Update Index
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git fetch origin gh-pages
           git checkout gh-pages
           helm repo index . --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           git add index.yaml *.tgz
           git commit -m "Update Helm chart"
-          git push
+          git push origin gh-pages
