@@ -8,7 +8,7 @@ name: Publish Helm chart
 on:
   push:
     tags:
-      - "v*" 
+      - "v*"
     paths:
       - "chart/**"
   workflow_dispatch:
@@ -16,6 +16,8 @@ on:
 jobs:
   publish-helm-chart:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,8 +25,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
 
       - name: Helm Install
         uses: azure/setup-helm@v4.2.0
@@ -39,7 +41,17 @@ jobs:
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
-          helm repo index . --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          if [ ! -f index.yaml ]; then
+            helm repo index . --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          else
+            helm repo index --merge index.yaml . --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          fi
           git add index.yaml *.tgz
           git commit -m "Update Helm chart"
-          git push https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git gh-pages
+          git push
+
+      - name: Debug
+        run: |
+          echo "Contents of gh-pages branch:"
+          ls -la
+          cat index.yaml
