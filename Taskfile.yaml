@@ -23,17 +23,17 @@ tasks:
   patch:
     desc: "Increment the patch version"
     cmds:
-      - ./scripts/increment-patch.sh
+      - ./scripts/increment_patch.sh
 
   minor:
     desc: "Increment the minor version"
     cmds:
-      - ./scripts/increment-minor.sh
+      - ./scripts/increment_minor.sh
 
   major:
     desc: "Increment the major version"
     cmds:
-      - ./scripts/increment-major.sh
+      - ./scripts/increment_major.sh
 
   list-tags:
     desc: "List all tags"
