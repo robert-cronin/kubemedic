@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "Debug Module",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.main"
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+# Copyright (c) 2024 Robert Cronin
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
+name: Publish Helm chart
+
+# Configures this workflow to run every time a change is pushed to a tag starting with `v`.
+on:
+  push:
+    tags:
+      - "v*" 
+    paths:
+      - "chart/**" # Trigger on changes to the chart directory
+  workflow_dispatch: # Allows manual triggering
+  
+jobs:
+  publish-helm-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Helm Install
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.1
+
+      - name: Package Helm Chart
+        run: |
+          helm package chart/
+
+      - name: Update Index
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout gh-pages
+          helm repo index . --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          git add index.yaml *.tgz
+          git commit -m "Update Helm chart"
+          git push
