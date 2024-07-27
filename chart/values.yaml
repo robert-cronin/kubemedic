@@ -4,7 +4,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/robert-cronin/kubemedic
   pullPolicy: IfNotPresent
-  tag: "0.1.0"
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""

@@ -17,7 +17,7 @@ You can access the application at:
 {{- else }}
 To access the application, you can port-forward the service to your local machine:
 
-  $ kubectl port-forward service/{{ include "chart.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  $ kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "chart.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
 
 Then, open your web browser and navigate to http://localhost:{{ .Values.service.port }}
 {{- end }}
