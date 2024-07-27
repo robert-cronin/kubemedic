@@ -8,6 +8,10 @@
 
 KubeMedic is an intelligent diagnostic tool for Kubernetes, leveraging OpenAI's GPT models to provide advanced troubleshooting and best practice recommendations. It offers a streamlined approach to cluster issue identification and resolution through an intuitive web interface.
 
+Here's a quick look at KubeMedic in action on a mock scenario involving a misconfigured pod image on [kind](https://kind.sigs.k8s.io/):
+
+![KubeMedic](docs/images/kubemedic.gif)
+
 ## Table of Contents
 
 - [Features](#features)
@@ -59,10 +63,10 @@ For detailed installation instructions, including setting up prerequisites, see 
 KubeMedic provides a web interface for interacting with the diagnostic tool. After installation, you can access it by port-forwarding the service:
 
 ```bash
-kubectl port-forward service/kubemedic 8080:80
+kubectl port-forward service/kubemedic -n kubemedic 5000:5000
 ```
 
-Then, navigate to `http://localhost:8080` in your web browser.
+Then, navigate to `http://localhost:5000` in your web browser.
 
 For usage examples and common scenarios, refer to our [Usage Guide](docs/usage.md).
 

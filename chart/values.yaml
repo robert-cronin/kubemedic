@@ -67,6 +67,3 @@ openai:
 kubemedic:
   debug: false
   logLevel: "INFO"
-
-rbac:
-  create: true

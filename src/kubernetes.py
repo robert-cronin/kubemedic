@@ -16,7 +16,8 @@ class KubernetesClient:
         try:
             # Try to load in-cluster configuration
             config.load_incluster_config()
-        except config.ConfigException:
+        except Exception as e:
+            print(f"Error loading in-cluster configuration: {e}")
             # If that fails, try to load kubeconfig file
             kubeconfig = os.path.expanduser("~/.kube/config")
             if os.path.exists(kubeconfig):
@@ -24,7 +25,7 @@ class KubernetesClient:
             else:
                 raise Exception(
                     "Cannot find Kubernetes configuration. Are you running inside a cluster?")
-        
+
         self.v1 = client.CoreV1Api()
         self.kubectl_path = shutil.which('kubectl')
         if not self.kubectl_path:
