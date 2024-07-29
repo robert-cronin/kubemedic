@@ -1,30 +1,28 @@
-Thank you for installing {{ .Chart.Name }}.
+Thank you for installing {{ .Chart.Name }}!
 
 Your release is named {{ .Release.Name }}.
 
-To learn more about the release, try:
-
-  $ helm status {{ .Release.Name }}
-  $ helm get all {{ .Release.Name }}
+To access KubeMedic:
 
 {{- if .Values.ingress.enabled }}
-You can access the application at:
 {{- range $host := .Values.ingress.hosts }}
   {{- range .paths }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
   {{- end }}
 {{- end }}
 {{- else }}
-To access the application, you can port-forward the service to your local machine:
+Run this command to access KubeMedic locally:
 
-  $ kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "chart.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "chart.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
 
-Then, open your web browser and navigate to http://localhost:{{ .Values.service.port }}
+Then open http://localhost:{{ .Values.service.port }} in your browser.
 {{- end }}
 
-IMPORTANT: The OpenAI API key has been stored as a Kubernetes secret named '{{ .Values.openai.apiKeySecret.name }}'.
-Make sure you provided a valid API key during installation. If you need to update it, you can do so by updating the secret:
+IMPORTANT: Make sure you've created a secret named '{{ .Values.openai.secretName }}' with your OpenAI API key.
+If you need to update it:
 
-  $ kubectl create secret generic {{ .Values.openai.apiKeySecret.name }} --from-literal={{ .Values.openai.apiKeySecret.key }}=your-new-api-key --dry-run=client -o yaml | kubectl apply -f -
+  kubectl create secret generic {{ .Values.openai.secretName }} \
+    --from-literal=OPENAI_API_KEY=<OPENAI_API_KEY> \
+    --dry-run=client -o yaml | kubectl apply -f -
 
-For more information on using KubeMedic, please refer to the documentation.
+For more information, check the KubeMedic documentation.
