@@ -1,9 +1,8 @@
-# Default values for KubeMedic chart.
 replicaCount: 1
 
 image:
   repository: ghcr.io/robert-cronin/kubemedic
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: ""
 
 imagePullSecrets: []
@@ -56,13 +55,8 @@ tolerations: []
 
 affinity: {}
 
-# Application-specific configurations
 openai:
-  # The actual API key should be provided during installation or created as a secret.
-  apiKey: ""
-  apiKeySecret:
-    name: openai-api-key
-    key: api-key
+  secretName: ""
 
 kubemedic:
   debug: false
