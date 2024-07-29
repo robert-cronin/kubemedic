@@ -51,8 +51,8 @@ spec:
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.openai.apiKeySecret.name }}
-                  key: {{ .Values.openai.apiKeySecret.key }}
+                  name: {{ .Values.openai.secretName | default "openai-api-key" }}
+                  key: OPENAI_API_KEY
             - name: DEBUG_MODE
               value: {{ .Values.kubemedic.debug | quote }}
             - name: LOG_LEVEL
