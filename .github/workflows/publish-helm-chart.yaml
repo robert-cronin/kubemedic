@@ -38,7 +38,7 @@ jobs:
           helm package chart/
 
       - name: Upload Helm chart artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: helm-chart
           path: kubemedic-*.tgz
