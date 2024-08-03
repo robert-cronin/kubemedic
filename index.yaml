@@ -2,11 +2,11 @@ apiVersion: v1
 entries:
   kubemedic:
   - apiVersion: v2
-    appVersion: v0.1.1
-    created: "2024-08-03T04:29:02.356709363Z"
+    appVersion: v0.1.2
+    created: "2024-08-03T04:29:19.904863086Z"
     description: An intelligent Kubernetes diagnostics tool leveraging OpenAI's API
       for advanced troubleshooting and best practices.
-    digest: 5825c3c010db706e791fc5c4bcdc5e8c470e01eb4928e15b5db668365585e90a
+    digest: 2ed6c5ee73ec223945f58539ca83c08d4e88e3054af2d922e21463d741c66991
     keywords:
     - kubernetes
     - diagnostics
@@ -20,4 +20,4 @@ entries:
     urls:
     - https://robert-cronin.github.io/kubemedic/kubemedic-0.1.1.tgz
     version: 0.1.1
-generated: "2024-08-03T04:29:02.356183484Z"
+generated: "2024-08-03T04:29:19.904327986Z"
