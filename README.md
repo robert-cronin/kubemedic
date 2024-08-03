@@ -21,6 +21,7 @@ Here's a quick look at KubeMedic in action on a mock scenario involving a miscon
 1. Create a secret for your OpenAI API key:
 
 ```bash
+kubectl create ns kubemedic
 kubectl create secret -n kubemedic generic openai-api-key \
     --from-literal=OPENAI_API_KEY=<OPENAI_API_KEY>
 ```
