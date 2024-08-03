@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [linux]
-        arch: [amd64, arm64, arm/v7, ppc64le, s390x]
+        arch: [amd64, arm64]
     permissions:
       contents: read
       packages: write
