@@ -46,6 +46,24 @@ kubectl port-forward service/kubemedic -n kubemedic 5000:5000
 
 Then open `http://localhost:5000` in your browser.
 
+## Development
+
+To run KubeMedic locally in dev mode, you can use Tilt. This requires the following tools: 
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [minikube](https://minikube.sigs.k8s.io/docs/)
+- [Tilt](https://tilt.dev/); and
+- [Docker](https://www.docker.com/) to be installed. 
+
+Once you have those installed, make sure there is an `.env` file at root with a valid `OPENAI_API_KEY=<your_key>` entry and run the following commands:
+
+```bash
+minikube start
+kubectl config use-context minikube
+tilt up
+```
+
+Then hit spacebar to open the Tilt UI in your browser and visit KubeMedic at `http://localhost:5000`.
+
 ## Requirements
 
 - Kubernetes 1.19+

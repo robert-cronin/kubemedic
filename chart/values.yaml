@@ -56,7 +56,7 @@ tolerations: []
 affinity: {}
 
 openai:
-  secretName: ""
+  secretName: "openai-api-key"
 
 kubemedic:
   debug: false
