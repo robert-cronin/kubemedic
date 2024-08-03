@@ -5,3 +5,4 @@ README.md
 .gitignore
 .github/
 **/__pycache__
+.env

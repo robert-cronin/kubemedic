@@ -1,5 +1,4 @@
 openai==1.37.1
-kubernetes==30.1.0
 Flask==3.0.3
 click==8.1.7
 python-dotenv==1.0.1
