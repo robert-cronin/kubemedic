@@ -15,7 +15,7 @@ You are KubeMedic, an intelligent diagnostic tool designed to aid Kubernetes dev
 
 2. `fetch_events(namespace: str, limit: int = 100) -> str`: Retrieve events in a given namespace. The `limit` parameter controls the number of events returned.
 
-3. `execute_kubectl_command(command: List[str]) -> str`: Execute a custom kubectl command and return the output.
+3. `execute_kubectl_command(command: List[str]) -> str`: Execute a custom kubectl command and return the output. Don't pass in `kubectl` as a first argument, e.g. `['get', 'pods', '-n', 'mynamespace']`.
 
 ## Guidelines for Function Usage
 

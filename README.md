@@ -21,7 +21,8 @@ Here's a quick look at KubeMedic in action on a mock scenario involving a miscon
 1. Create a secret for your OpenAI API key:
 
 ```bash
-kubectl create secret -n kubemedic generic openai-api-key --from-literal=OPENAI_API_KEY=<OPENAI_API_KEY>
+kubectl create secret -n kubemedic generic openai-api-key \
+    --from-literal=OPENAI_API_KEY=<OPENAI_API_KEY>
 ```
 
 You can change the secret name and namespace by updating the `openai.secretName` value in the Helm chart.
@@ -34,6 +35,25 @@ helm repo update
 helm upgrade --install kubemedic kubemedic/kubemedic \
     --namespace kubemedic \
     --create-namespace
+```
+
+## Permissions
+
+KubeMedic requires certain permissions to function effectively. Here's an overview of the permissions granted:
+
+- **Read-only access** to most cluster resources for diagnostic purposes
+- **List** permissions to Secrets and ConfigMaps (cannot read values)
+
+These permissions allow KubeMedic to gather the necessary information for diagnostics while maintaining security best practices.
+
+### Auditing Permissions
+
+You can review the exact permissions granted to KubeMedic by examining the [rbac.yaml](chart/templates/rbac.yaml) file.
+
+Or to view the current permissions in a running cluster:
+
+```bash
+kubectl get clusterrole kubemedic-role -o yaml
 ```
 
 ## Usage
@@ -80,4 +100,4 @@ MIT License. See [LICENSE](LICENSE) file.
 
 ---
 
-Created by [Robert Cronin](https://github.com/robert-cronin). Use at your own risk!
+Initial development by [Robert Cronin](https://github.com/robert-cronin).
