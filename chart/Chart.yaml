@@ -3,7 +3,7 @@ name: kubemedic
 description: An intelligent Kubernetes diagnostics tool leveraging OpenAI's API for advanced troubleshooting and best practices.
 type: application
 version: 1.0.0
-appVersion: "v0.1.4"
+appVersion: "v0.1.5"
 keywords:
   - kubernetes
   - diagnostics
