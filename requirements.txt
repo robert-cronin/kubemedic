@@ -4,4 +4,4 @@ click==8.1.7
 python-dotenv==1.0.1
 pylint==3.2.6
 autopep8==2.3.1
-gunicorn==22.0.0
+gunicorn==23.0.0
