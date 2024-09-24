@@ -2,6 +2,6 @@ openai==1.47.1
 Flask==3.0.3
 click==8.1.7
 python-dotenv==1.0.1
-pylint==3.2.6
+pylint==3.3.0
 autopep8==2.3.1
 gunicorn==23.0.0
