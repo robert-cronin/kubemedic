@@ -5,7 +5,7 @@
 
 FROM bitnami/kubectl:latest as kubectl
 
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 COPY --from=kubectl /opt/bitnami/kubectl/bin/kubectl /usr/local/bin/kubectl
 
